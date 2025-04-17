@@ -1,22 +1,33 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Line, LineChart, Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { Line, LineChart, Bar, BarChart, ResponsiveContainer, XAxis, YAxis, TooltipProps } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import React, { ReactNode } from "react"
+
+interface ChartDataItem {
+  year: number
+  totalAmount: number
+  contributions: number
+  interest: number
+}
+
+type ValueType = number
+type NameType = string
 
 export default function ZinsRechner() {
-  const [initialCapital, setInitialCapital] = useState(10000)
-  const [monthlyContribution, setMonthlyContribution] = useState(250)
-  const [years, setYears] = useState(30)
-  const [interestRate, setInterestRate] = useState(8.6)
-  const [chartData, setChartData] = useState([])
-  const [summary, setSummary] = useState("")
-  const [activeChart, setActiveChart] = useState("bar")
+  const [initialCapital, setInitialCapital] = useState<number>(10000)
+  const [monthlyContribution, setMonthlyContribution] = useState<number>(250)
+  const [years, setYears] = useState<number>(30)
+  const [interestRate, setInterestRate] = useState<number>(8.6)
+  const [chartData, setChartData] = useState<ChartDataItem[]>([])
+  const [summary, setSummary] = useState<string>("")
+  const [activeChart, setActiveChart] = useState<string>("bar")
 
   useEffect(() => {
     calculateCompoundInterest()
@@ -28,7 +39,7 @@ export default function ZinsRechner() {
 
     const r = interestRate / 100
     const annualContribution = monthlyContribution * 12
-    const yearlyData = []
+    const yearlyData: ChartDataItem[] = []
 
     // Calculate each year's total
     for (let year = 0; year <= years; year++) {
@@ -67,28 +78,18 @@ export default function ZinsRechner() {
     )
   }
 
-  const formatEuro = (value) => {
-    if (value >= 1e24) {
-      return `${(value / 1e24).toFixed(2).toLocaleString("de-DE")} Trillion €`
-    } else if (value >= 1e21) {
-      return `${(value / 1e21).toFixed(2).toLocaleString("de-DE")} Trilliarden €`
-    } else if (value >= 1e18) {
-      return `${(value / 1e18).toFixed(2).toLocaleString("de-DE")} Trillionen €`
-    } else if (value >= 1e15) {
-      return `${(value / 1e15).toFixed(2).toLocaleString("de-DE")} Billiarden €`
-    } else if (value >= 1e12) {
-      return `${(value / 1e12).toFixed(2).toLocaleString("de-DE")} Billionen €`
-    } else if (value >= 1e9) {
-      return `${(value / 1e9).toFixed(2).toLocaleString("de-DE")} Milliarden €`
-    } else if (value >= 1e6) {
-      return `${(value / 1e6).toFixed(2).toLocaleString("de-DE")} Millionen €`
-    } else {
-      return `${value.toLocaleString("de-DE")} €`
-    }
+  const formatEuro = (value: number): string => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+      notation: value >= 1e6 ? 'compact' : 'standard',
+      compactDisplay: 'long',
+      maximumFractionDigits: value >= 1e6 ? 1 : 2
+    }).format(value)
   }
 
   // Function to determine which years to show on x-axis based on total years
-  const getTickInterval = (totalYears) => {
+  const getTickInterval = (totalYears: number): number => {
     if (totalYears <= 10) return 1
     if (totalYears <= 20) return 2
     if (totalYears <= 50) return 5
@@ -96,16 +97,16 @@ export default function ZinsRechner() {
     return 20
   }
 
-  const handleInterestRateChange = (e) => {
+  const handleInterestRateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = Number.parseFloat(e.target.value)
     if (!isNaN(value)) {
       setInterestRate(value)
     }
   }
 
-  const CustomBarTooltip = ({ active, payload }) => {
+  const CustomBarTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>): ReactNode => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
+      const data = payload[0].payload as ChartDataItem
       return (
         <div className="bg-white p-3 border rounded shadow-lg">
           <p className="font-medium">Jahr {data.year}</p>
@@ -124,9 +125,9 @@ export default function ZinsRechner() {
     return null
   }
 
-  const CustomLineTooltip = ({ active, payload }) => {
+  const CustomLineTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>): ReactNode => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
+      const data = payload[0].payload as ChartDataItem
       return (
         <div className="bg-white p-3 border rounded shadow-lg">
           <p className="font-medium">Jahr {data.year}</p>
@@ -299,14 +300,15 @@ export default function ZinsRechner() {
                       <YAxis
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(value) => {
-                          if (value >= 1e6) return `${(value / 1e6).toFixed(0)} Mio.`
-                          if (value >= 1e3) return `${(value / 1e3).toFixed(0)} Tsd.`
-                          return value
-                        }}
+                        tickFormatter={(value) => 
+                          new Intl.NumberFormat('de-DE', {
+                            notation: 'compact',
+                            compactDisplay: 'short',
+                          }).format(value)
+                        }
                         width={60}
                       />
-                      <ChartTooltip content={<CustomBarTooltip />} />
+                      <ChartTooltip content={CustomBarTooltip} />
                       <Bar dataKey="contributions" stackId="a" fill="var(--color-contributions)" name="Einzahlungen" />
                       <Bar dataKey="interest" stackId="a" fill="var(--color-interest)" name="Zinsen" />
                     </BarChart>
@@ -343,16 +345,15 @@ export default function ZinsRechner() {
                       <YAxis
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(value) => {
-                          if (value >= 1e12) return `${(value / 1e12).toFixed(1)}B`
-                          if (value >= 1e9) return `${(value / 1e9).toFixed(1)}Mrd`
-                          if (value >= 1e6) return `${(value / 1e6).toFixed(1)}Mio`
-                          if (value >= 1e3) return `${(value / 1e3).toFixed(1)}k`
-                          return value
-                        }}
+                        tickFormatter={(value) => 
+                          new Intl.NumberFormat('de-DE', {
+                            notation: 'compact',
+                            compactDisplay: 'short',
+                          }).format(value)
+                        }
                         width={60}
                       />
-                      <ChartTooltip content={<CustomLineTooltip />} />
+                      <ChartTooltip content={CustomLineTooltip} />
                       <Line
                         type="monotone"
                         dataKey="totalAmount"
