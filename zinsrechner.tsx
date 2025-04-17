@@ -49,7 +49,12 @@ export default function ZinsRechner() {
       // For year 0, there are no contributions yet
       let contributionWithInterest = 0
       if (year > 0) {
-        contributionWithInterest = annualContribution * ((Math.pow(1 + r, year) - 1) / r)
+        // When interest rate is 0, simply multiply by the number of years
+        if (r === 0) {
+          contributionWithInterest = annualContribution * year
+        } else {
+          contributionWithInterest = annualContribution * ((Math.pow(1 + r, year) - 1) / r)
+        }
       }
 
       const totalAmount = principalWithInterest + contributionWithInterest
