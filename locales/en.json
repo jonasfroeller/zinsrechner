@@ -1,0 +1,99 @@
+{
+  "app": {
+    "title": "Interest Calculator",
+    "description": "Calculate your wealth with compound interest and monthly contributions"
+  },
+  "header": {
+    "title": "Interest Calculator"
+  },
+  "inputs": {
+    "initialCapital": "Initial Capital",
+    "monthlyContribution": "Monthly Contribution",
+    "years": "Duration in Years",
+    "yearsValue": "Duration in Years: {{years}}",
+    "interestRate": "Annual Interest Rate",
+    "annualIncrease": "Annual Contribution Increase",
+    "annualIncreaseLabel": "Annual Increase: {{value}}%",
+    "compoundFrequency": "Compound Frequency",
+    "compoundMonthly": "Monthly",
+    "compoundQuarterly": "Quarterly",
+    "compoundAnnually": "Annually",
+    "inflationRate": "Inflation Rate",
+    "inflationLabel": "Inflation: {{value}}%",
+    "taxJurisdiction": "Tax Jurisdiction",
+    "taxJurisdictionGermany": "Germany",
+    "taxJurisdictionAustria": "Austria",
+    "taxJurisdictionCustom": "Custom",
+    "taxRate": "Capital Gains Tax",
+    "taxAllowance": "Tax-Free Allowance",
+    "annualBonus": "Annual Bonus Deposit",
+    "advanced": "Advanced Options",
+    "advancedOpen": "Hide Advanced Options",
+    "advancedClosed": "Show Advanced Options",
+    "currency": "€",
+    "percent": "%"
+  },
+  "summary": {
+    "base": "If you invest {{monthly}} monthly at {{rate}}% for {{years}} years",
+    "withInitial": ", starting with {{initial}}",
+    "withIncrease": ", increasing your contributions by {{increase}}% per year",
+    "withBonus": ", plus an annual bonus of {{bonus}}",
+    "result": "you will reach a final capital of {{final}}.",
+    "resultNet": "you will reach a final capital of {{final}} (net after taxes).",
+    "breakdown": "This consists of {{contributions}} in deposits and {{interest}} in capital gains.",
+    "breakdownNet": "This consists of {{contributions}} in deposits, {{grossInterest}} in gross capital gains, minus {{tax}} in taxes, leaving {{netInterest}} in net gains.",
+    "realValue": "Adjusted for inflation ({{inflation}}%), this is worth {{real}} in today's money.",
+    "taxNote": "Taxes calculated year-by-year with a {{allowance}} annual tax-free allowance (unused portions do not carry forward).",
+    "taxNoteGermany": "German Abgeltungssteuer (25% + 5.5% solidarity surcharge = 26.375%) applied year-by-year with a {{allowance}} annual tax-free allowance (unused portions do not carry forward).",
+    "taxNoteAustria": "Austrian KESt (25%) applied year-by-year with a {{allowance}} annual tax-free allowance (unused portions do not carry forward)."
+  },
+  "charts": {
+    "bar": "Bar Chart",
+    "line": "Line Chart",
+    "area": "Area Chart",
+    "breakdown": "Breakdown",
+    "table": "Table",
+    "legend": {
+      "contributions": "Contributions",
+      "grossInterest": "Gross Interest",
+      "netInterest": "Net Interest",
+      "tax": "Tax",
+      "totalCapital": "Total Capital",
+      "realTotalCapital": "Real Total Capital"
+    }
+  },
+  "table": {
+    "year": "Year",
+    "contributions": "Contributions",
+    "grossInterest": "Gross Interest",
+    "tax": "Tax",
+    "netInterest": "Net Interest",
+    "total": "Total (Nominal)",
+    "realTotal": "Total (Real)",
+    "yearlyContribution": "Yearly Deposit"
+  },
+  "tooltip": {
+    "year": "Year {{year}}",
+    "contributions": "Contributions: {{value}}",
+    "grossInterest": "Gross Interest: {{value}}",
+    "netInterest": "Net Interest: {{value}}",
+    "tax": "Tax: {{value}}",
+    "total": "Total: {{value}}",
+    "realTotal": "Real Value: {{value}}"
+  },
+  "donut": {
+    "yourDeposits": "Your Deposits",
+    "grossInterest": "Gross Interest",
+    "taxPaid": "Tax Paid",
+    "netInterest": "Net Interest"
+  },
+  "footer": {
+    "madeBy": "Made by",
+    "imprint": "Imprint"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "de": "German"
+  }
+}

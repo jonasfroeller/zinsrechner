@@ -1,0 +1,99 @@
+{
+  "app": {
+    "title": "Zinsrechner",
+    "description": "Berechne dein Vermögen mit Zinseszins und monatlichen Einzahlungen"
+  },
+  "header": {
+    "title": "Zinsrechner"
+  },
+  "inputs": {
+    "initialCapital": "Anfangskapital",
+    "monthlyContribution": "Monatliche Sparrate",
+    "years": "Spardauer in Jahren",
+    "yearsValue": "Spardauer in Jahren: {{years}}",
+    "interestRate": "Jährlicher Zinssatz",
+    "annualIncrease": "Jährliche Sparratenerhöhung",
+    "annualIncreaseLabel": "Jährliche Erhöhung: {{value}}%",
+    "compoundFrequency": "Zinseszins-Häufigkeit",
+    "compoundMonthly": "Monatlich",
+    "compoundQuarterly": "Vierteljährlich",
+    "compoundAnnually": "Jährlich",
+    "inflationRate": "Inflationsrate",
+    "inflationLabel": "Inflation: {{value}}%",
+    "taxJurisdiction": "Steuerrecht",
+    "taxJurisdictionGermany": "Deutschland",
+    "taxJurisdictionAustria": "Österreich",
+    "taxJurisdictionCustom": "Benutzerdefiniert",
+    "taxRate": "Kapitalertragssteuer",
+    "taxAllowance": "Sparer-Pauschbetrag",
+    "annualBonus": "Jährliche Bonus-Einzahlung",
+    "advanced": "Erweiterte Optionen",
+    "advancedOpen": "Erweiterte Optionen ausblenden",
+    "advancedClosed": "Erweiterte Optionen anzeigen",
+    "currency": "€",
+    "percent": "%"
+  },
+  "summary": {
+    "base": "Wenn du über {{years}} Jahre monatlich {{monthly}} zu {{rate}}% investierst",
+    "withInitial": ", beginnend mit {{initial}}",
+    "withIncrease": ", wobei du deine Sparrate jährlich um {{increase}}% erhöhst",
+    "withBonus": ", zuzüglich eines jährlichen Bonus von {{bonus}}",
+    "result": "kommst du am Ende auf ein Endkapital von {{final}}.",
+    "resultNet": "kommst du am Ende auf ein Endkapital von {{final}} (netto nach Steuern).",
+    "breakdown": "Dies setzt sich zusammen aus {{contributions}} Einzahlungen und {{interest}} Kapitalerträgen.",
+    "breakdownNet": "Dies setzt sich zusammen aus {{contributions}} Einzahlungen, {{grossInterest}} Brutto-Kapitalerträgen, abzüglich {{tax}} Steuern, was {{netInterest}} Netto-Kapitalerträge ergibt.",
+    "realValue": "Inflationsbereinigt ({{inflation}}%) entspricht das einem heutigen Wert von {{real}}.",
+    "taxNote": "Steuern werden jährlich berechnet mit einem jährlichen Sparer-Pauschbetrag von {{allowance}} (nicht genutzte Anteile verfallen).",
+    "taxNoteGermany": "Deutsche Abgeltungssteuer (25% + 5,5% Solidaritätszuschlag = 26,375%) wird jährlich berechnet mit einem jährlichen Sparer-Pauschbetrag von {{allowance}} (nicht genutzte Anteile verfallen).",
+    "taxNoteAustria": "Österreichische KESt (25%) wird jährlich berechnet mit einem jährlichen Sparer-Pauschbetrag von {{allowance}} (nicht genutzte Anteile verfallen)."
+  },
+  "charts": {
+    "bar": "Balkendiagramm",
+    "line": "Liniendiagramm",
+    "area": "Flächendiagramm",
+    "breakdown": "Aufschlüsselung",
+    "table": "Tabelle",
+    "legend": {
+      "contributions": "Einzahlungen",
+      "grossInterest": "Brutto-Zinsen",
+      "netInterest": "Netto-Zinsen",
+      "tax": "Steuern",
+      "totalCapital": "Gesamtkapital",
+      "realTotalCapital": "Reales Gesamtkapital"
+    }
+  },
+  "table": {
+    "year": "Jahr",
+    "contributions": "Einzahlungen",
+    "grossInterest": "Brutto-Zinsen",
+    "tax": "Steuern",
+    "netInterest": "Netto-Zinsen",
+    "total": "Gesamt (Nominal)",
+    "realTotal": "Gesamt (Real)",
+    "yearlyContribution": "Jährliche Einzahlung"
+  },
+  "tooltip": {
+    "year": "Jahr {{year}}",
+    "contributions": "Einzahlungen: {{value}}",
+    "grossInterest": "Brutto-Zinsen: {{value}}",
+    "netInterest": "Netto-Zinsen: {{value}}",
+    "tax": "Steuern: {{value}}",
+    "total": "Gesamt: {{value}}",
+    "realTotal": "Realer Wert: {{value}}"
+  },
+  "donut": {
+    "yourDeposits": "Deine Einzahlungen",
+    "grossInterest": "Brutto-Zinsen",
+    "taxPaid": "Gezahlte Steuern",
+    "netInterest": "Netto-Zinsen"
+  },
+  "footer": {
+    "madeBy": "Erstellt von",
+    "imprint": "Impressum"
+  },
+  "language": {
+    "label": "Sprache",
+    "en": "Englisch",
+    "de": "Deutsch"
+  }
+}
