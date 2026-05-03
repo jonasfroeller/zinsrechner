@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   Line,
   LineChart,
@@ -22,13 +22,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ChevronDown, ChevronUp, Info } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/context"
 import { useCalculator, YearlyData } from "@/hooks/use-calculator"
 import { readUrlParam, readUrlStringParam, useUrlState } from "@/hooks/use-url-state"
+import { usStates, getStateByCode } from "@/lib/tax-data"
 import React, { ReactNode } from "react"
 
 interface ChartDataItem extends YearlyData {
@@ -38,6 +41,8 @@ interface ChartDataItem extends YearlyData {
 
 type ValueType = number
 type NameType = string
+
+type TaxJurisdiction = "germany" | "austria" | "united-states" | "custom"
 
 function getTickInterval(totalYears: number): number {
   if (totalYears <= 10) return 1
@@ -57,7 +62,6 @@ function formatCompact(value: number, locale: string): string {
 export default function ZinsRechner() {
   const { t, formatCurrency, locale } = useTranslation()
 
-  // Initialize with defaults, then read URL in useEffect
   const [initialCapital, setInitialCapital] = useState(10000)
   const [monthlyContribution, setMonthlyContribution] = useState(250)
   const [years, setYears] = useState(30)
@@ -65,23 +69,19 @@ export default function ZinsRechner() {
   const [annualContributionIncrease, setAnnualContributionIncrease] = useState(0)
   const [compoundFrequency, setCompoundFrequency] = useState<"monthly" | "quarterly" | "annually">("annually")
   const [inflationRate, setInflationRate] = useState(0)
-  const [taxJurisdiction, setTaxJurisdiction] = useState<"germany" | "austria" | "custom">("germany")
+  const [taxJurisdiction, setTaxJurisdiction] = useState<TaxJurisdiction>("germany")
   const [taxRate, setTaxRate] = useState(26.375)
   const [taxAllowance, setTaxAllowance] = useState(1000)
+
+  // US-specific
+  const [federalRate, setFederalRate] = useState(22)
+  const [usStateCode, setUsStateCode] = useState("CA")
+  const [usStateRate, setUsStateRate] = useState(13.3)
+  const [niitEnabled, setNiitEnabled] = useState(false)
+
   const [annualBonus, setAnnualBonus] = useState(0)
   const [activeChart, setActiveChart] = useState<string>("bar")
   const [showAdvanced, setShowAdvanced] = useState(false)
-
-  const handleJurisdictionChange = (value: "germany" | "austria" | "custom") => {
-    setTaxJurisdiction(value)
-    if (value === "germany") {
-      setTaxRate(26.375)
-      setTaxAllowance(1000)
-    } else if (value === "austria") {
-      setTaxRate(25)
-      setTaxAllowance(1000)
-    }
-  }
 
   // Read URL params once on mount
   useEffect(() => {
@@ -92,12 +92,36 @@ export default function ZinsRechner() {
     setAnnualContributionIncrease(readUrlParam("ai", 0))
     setCompoundFrequency(readUrlStringParam("cf", "annually") as "monthly" | "quarterly" | "annually")
     setInflationRate(readUrlParam("ir", 0))
+
     const tj = readUrlStringParam("tj", "germany")
-    setTaxJurisdiction(tj === "austria" || tj === "custom" ? tj : "germany")
+    const validJurisdiction = ["germany", "austria", "united-states", "custom"].includes(tj)
+      ? (tj as TaxJurisdiction)
+      : "germany"
+    setTaxJurisdiction(validJurisdiction)
+
+    // Read US params
+    setFederalRate(readUrlParam("fr", 22))
+    setUsStateCode(readUrlStringParam("us", "CA"))
+    setUsStateRate(readUrlParam("sr", 13.3))
+    setNiitEnabled(readUrlStringParam("ni", "false") === "true")
+
+    // For non-US, read the old params
     setTaxRate(readUrlParam("tr", 26.375))
     setTaxAllowance(readUrlParam("ta", 1000))
     setAnnualBonus(readUrlParam("ab", 0))
   }, [])
+
+  const effectiveTaxRate = useMemo(() => {
+    if (taxJurisdiction === "united-states") {
+      return federalRate + usStateRate + (niitEnabled ? 3.8 : 0)
+    }
+    return taxRate
+  }, [taxJurisdiction, federalRate, usStateRate, niitEnabled, taxRate])
+
+  const effectiveTaxAllowance = useMemo(() => {
+    if (taxJurisdiction === "united-states") return 0
+    return taxAllowance
+  }, [taxJurisdiction, taxAllowance])
 
   // Sync state to URL
   useUrlState({
@@ -109,10 +133,40 @@ export default function ZinsRechner() {
     cf: compoundFrequency,
     ir: inflationRate,
     tj: taxJurisdiction,
-    tr: taxRate,
-    ta: taxAllowance,
+    fr: taxJurisdiction === "united-states" ? federalRate : undefined,
+    us: taxJurisdiction === "united-states" ? usStateCode : undefined,
+    sr: taxJurisdiction === "united-states" ? usStateRate : undefined,
+    ni: taxJurisdiction === "united-states" ? (niitEnabled ? "true" : "false") : undefined,
+    tr: taxJurisdiction !== "united-states" ? taxRate : undefined,
+    ta: taxJurisdiction !== "united-states" ? taxAllowance : undefined,
     ab: annualBonus,
   })
+
+  const handleJurisdictionChange = (value: TaxJurisdiction) => {
+    setTaxJurisdiction(value)
+    if (value === "germany") {
+      setTaxRate(26.375)
+      setTaxAllowance(1000)
+    } else if (value === "austria") {
+      setTaxRate(25)
+      setTaxAllowance(1000)
+    } else if (value === "united-states") {
+      setFederalRate(22)
+      const defaultState = getStateByCode("CA")!
+      setUsStateCode(defaultState.code)
+      setUsStateRate(defaultState.defaultRate)
+      setNiitEnabled(false)
+      setTaxAllowance(0)
+    }
+  }
+
+  const handleUsStateChange = (code: string) => {
+    setUsStateCode(code)
+    const state = getStateByCode(code)
+    if (state) {
+      setUsStateRate(state.defaultRate)
+    }
+  }
 
   const rawData = useCalculator({
     initialCapital,
@@ -122,8 +176,8 @@ export default function ZinsRechner() {
     annualContributionIncrease,
     compoundFrequency,
     inflationRate,
-    taxRate,
-    taxAllowance,
+    taxRate: effectiveTaxRate,
+    taxAllowance: effectiveTaxAllowance,
     annualBonus,
   })
 
@@ -176,7 +230,7 @@ export default function ZinsRechner() {
       text += t("summary.withBonus", { bonus: formatCurrency(annualBonus) })
     }
 
-    if (taxRate > 0) {
+    if (effectiveTaxRate > 0) {
       text += " " + t("summary.resultNet", { final: formatCurrency(final.totalAmount) })
       text += " " + t("summary.breakdownNet", {
         contributions: formatCurrency(final.totalContributions),
@@ -199,18 +253,20 @@ export default function ZinsRechner() {
       })
     }
 
-    if (taxRate > 0) {
+    if (effectiveTaxRate > 0) {
       if (taxJurisdiction === "germany") {
-        text += " " + t("summary.taxNoteGermany", { allowance: formatCurrency(taxAllowance) })
+        text += " " + t("summary.taxNoteGermany", { allowance: formatCurrency(effectiveTaxAllowance) })
       } else if (taxJurisdiction === "austria") {
-        text += " " + t("summary.taxNoteAustria", { allowance: formatCurrency(taxAllowance) })
+        text += " " + t("summary.taxNoteAustria", { allowance: formatCurrency(effectiveTaxAllowance) })
+      } else if (taxJurisdiction === "united-states") {
+        text += " " + t("summary.taxNoteUS", { federal: federalRate, state: usStateRate })
       } else {
-        text += " " + t("summary.taxNote", { allowance: formatCurrency(taxAllowance) })
+        text += " " + t("summary.taxNote", { allowance: formatCurrency(effectiveTaxAllowance) })
       }
     }
 
     return text
-  }, [rawData, t, formatCurrency, monthlyContribution, interestRate, years, initialCapital, annualContributionIncrease, annualBonus, taxRate, inflationRate, taxAllowance, taxJurisdiction])
+  }, [rawData, t, formatCurrency, monthlyContribution, interestRate, years, initialCapital, annualContributionIncrease, annualBonus, effectiveTaxRate, inflationRate, effectiveTaxAllowance, taxJurisdiction, federalRate, usStateRate])
 
   const CustomBarTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>): ReactNode => {
     if (active && payload && payload.length) {
@@ -226,7 +282,7 @@ export default function ZinsRechner() {
             <div className="w-3 h-3 rounded-full bg-orange-500 mr-2" />
             <p>{t("tooltip.netInterest", { value: formatCurrency(data.totalNetInterest) })}</p>
           </div>
-          {taxRate > 0 && (
+          {effectiveTaxRate > 0 && (
             <div className="flex items-center mt-1">
               <div className="w-3 h-3 rounded-full bg-red-500 mr-2" />
               <p>{t("tooltip.tax", { value: formatCurrency(data.totalTax) })}</p>
@@ -253,7 +309,7 @@ export default function ZinsRechner() {
             <div className="w-3 h-3 rounded-full bg-blue-500 mr-2" />
             <p>{t("tooltip.contributions", { value: formatCurrency(data.totalContributions) })}</p>
           </div>
-          {taxRate > 0 && (
+          {effectiveTaxRate > 0 && (
             <>
               <div className="flex items-center mt-1">
                 <div className="w-3 h-3 rounded-full bg-orange-500 mr-2" />
@@ -283,9 +339,9 @@ export default function ZinsRechner() {
     return [
       { name: t("donut.yourDeposits"), value: final.totalContributions, color: "hsl(214, 100%, 60%)" },
       { name: t("donut.netInterest"), value: final.totalNetInterest, color: "hsl(165, 60%, 40%)" },
-      ...(taxRate > 0 ? [{ name: t("donut.taxPaid"), value: final.totalTax, color: "hsl(0, 84%, 60%)" }] : []),
+      ...(effectiveTaxRate > 0 ? [{ name: t("donut.taxPaid"), value: final.totalTax, color: "hsl(0, 84%, 60%)" }] : []),
     ].filter((d) => d.value > 0)
-  }, [rawData, t, taxRate])
+  }, [rawData, t, effectiveTaxRate])
 
   const DonutTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>): ReactNode => {
     if (active && payload && payload.length) {
@@ -299,6 +355,9 @@ export default function ZinsRechner() {
     }
     return null
   }
+
+  const isUS = taxJurisdiction === "united-states"
+  const selectedState = getStateByCode(usStateCode)
 
   return (
     <div className="container mx-auto py-10 px-4">
@@ -452,11 +511,12 @@ export default function ZinsRechner() {
                 </div>
 
                 <div className="space-y-4">
+                  {/* Jurisdiction selector */}
                   <div className="space-y-2">
                     <Label htmlFor="taxJurisdiction">{t("inputs.taxJurisdiction")}</Label>
                     <Select
                       value={taxJurisdiction}
-                      onValueChange={(value) => handleJurisdictionChange(value as "germany" | "austria" | "custom")}
+                      onValueChange={(value) => handleJurisdictionChange(value as TaxJurisdiction)}
                     >
                       <SelectTrigger id="taxJurisdiction">
                         <SelectValue />
@@ -464,48 +524,177 @@ export default function ZinsRechner() {
                       <SelectContent>
                         <SelectItem value="germany">{t("inputs.taxJurisdictionGermany")}</SelectItem>
                         <SelectItem value="austria">{t("inputs.taxJurisdictionAustria")}</SelectItem>
+                        <SelectItem value="united-states">{t("inputs.taxJurisdictionUS")}</SelectItem>
                         <SelectItem value="custom">{t("inputs.taxJurisdictionCustom")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="taxRate">{t("inputs.taxRate")}</Label>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Input
-                        id="taxRate"
-                        type="number"
-                        min={0}
-                        max={100}
-                        value={taxRate}
-                        onChange={(e) => setTaxRate(Math.max(0, Math.min(100, Number(e.target.value))))}
-                        step="0.001"
-                      />
-                      <span className="text-sm">{t("inputs.percent")}</span>
-                    </div>
-                    <Slider
-                      id="taxRateSlider"
-                      min={0}
-                      max={50}
-                      step={0.1}
-                      value={[taxRate]}
-                      onValueChange={(value) => setTaxRate(value[0])}
-                    />
-                  </div>
+                  {/* US-specific inputs */}
+                  {isUS && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="federalRate">{t("inputs.federalRate")}</Label>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Input
+                            id="federalRate"
+                            type="number"
+                            min={0}
+                            max={37}
+                            value={federalRate}
+                            onChange={(e) => setFederalRate(Math.max(0, Math.min(37, Number(e.target.value))))}
+                            step="0.1"
+                          />
+                          <span className="text-sm">{t("inputs.percent")}</span>
+                        </div>
+                        <Slider
+                          id="federalRateSlider"
+                          min={0}
+                          max={37}
+                          step={0.1}
+                          value={[federalRate]}
+                          onValueChange={(value) => setFederalRate(value[0])}
+                        />
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="taxAllowance">{t("inputs.taxAllowance")}</Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        id="taxAllowance"
-                        type="number"
-                        min={0}
-                        value={taxAllowance}
-                        onChange={(e) => setTaxAllowance(Math.max(0, Number(e.target.value)))}
-                      />
-                      <span className="text-sm">{t("inputs.currency")}</span>
-                    </div>
-                  </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="usState">{t("inputs.usState")}</Label>
+                        <Select value={usStateCode} onValueChange={handleUsStateChange}>
+                          <SelectTrigger id="usState">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>{t("inputs.stateGroupNoTax")}</SelectLabel>
+                              {usStates
+                                .filter((s) => s.category === "no-income-tax")
+                                .map((s) => (
+                                  <SelectItem key={s.code} value={s.code}>
+                                    {s.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>{t("inputs.stateGroupFlat")}</SelectLabel>
+                              {usStates
+                                .filter((s) => s.category === "flat-tax")
+                                .map((s) => (
+                                  <SelectItem key={s.code} value={s.code}>
+                                    {s.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>{t("inputs.stateGroupProgressive")}</SelectLabel>
+                              {usStates
+                                .filter((s) => s.category === "progressive")
+                                .map((s) => (
+                                  <SelectItem key={s.code} value={s.code}>
+                                    {s.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                            <SelectGroup>
+                              <SelectLabel>{t("inputs.stateGroupSpecial")}</SelectLabel>
+                              {usStates
+                                .filter((s) => s.category === "special")
+                                .map((s) => (
+                                  <SelectItem key={s.code} value={s.code}>
+                                    {s.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="usStateRate" className="flex items-center gap-2">
+                            {t("inputs.taxRate")}
+                            {usStateCode === "WA" && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs">
+                                    <p>{t("summary.waTooltip")}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            id="usStateRate"
+                            type="number"
+                            min={0}
+                            max={20}
+                            value={usStateRate}
+                            onChange={(e) => setUsStateRate(Math.max(0, Math.min(20, Number(e.target.value))))}
+                            step="0.1"
+                          />
+                          <span className="text-sm">{t("inputs.percent")}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 pt-1">
+                        <Switch
+                          id="niit"
+                          checked={niitEnabled}
+                          onCheckedChange={setNiitEnabled}
+                        />
+                        <Label htmlFor="niit" className="text-sm cursor-pointer">
+                          {t("inputs.niit")}
+                        </Label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Non-US tax inputs */}
+                  {!isUS && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="taxRate">{t("inputs.taxRate")}</Label>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Input
+                            id="taxRate"
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={taxRate}
+                            onChange={(e) => setTaxRate(Math.max(0, Math.min(100, Number(e.target.value))))}
+                            step="0.001"
+                          />
+                          <span className="text-sm">{t("inputs.percent")}</span>
+                        </div>
+                        <Slider
+                          id="taxRateSlider"
+                          min={0}
+                          max={50}
+                          step={0.1}
+                          value={[taxRate]}
+                          onValueChange={(value) => setTaxRate(value[0])}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="taxAllowance">{t("inputs.taxAllowance")}</Label>
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            id="taxAllowance"
+                            type="number"
+                            min={0}
+                            value={taxAllowance}
+                            onChange={(e) => setTaxAllowance(Math.max(0, Number(e.target.value)))}
+                          />
+                          <span className="text-sm">{t("inputs.currency")}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -813,7 +1002,7 @@ export default function ZinsRechner() {
                           <TableCell className="font-medium">{row.year}</TableCell>
                           <TableCell>{formatCurrency(row.yearContributions)}</TableCell>
                           <TableCell>{formatCurrency(row.yearGrossInterest)}</TableCell>
-                          <TableCell>{taxRate > 0 ? formatCurrency(row.yearTax) : "—"}</TableCell>
+                          <TableCell>{effectiveTaxRate > 0 ? formatCurrency(row.yearTax) : "—"}</TableCell>
                           <TableCell>{formatCurrency(row.yearNetInterest)}</TableCell>
                           <TableCell>{formatCurrency(row.totalAmount)}</TableCell>
                           {inflationRate > 0 && (

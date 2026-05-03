@@ -23,7 +23,15 @@
     "taxJurisdiction": "Tax Jurisdiction",
     "taxJurisdictionGermany": "Germany",
     "taxJurisdictionAustria": "Austria",
+    "taxJurisdictionUS": "United States",
     "taxJurisdictionCustom": "Custom",
+    "federalRate": "Federal Marginal Tax Rate",
+    "usState": "State",
+    "stateGroupNoTax": "No State Income Tax",
+    "stateGroupFlat": "Flat Tax States",
+    "stateGroupProgressive": "Progressive Tax States",
+    "stateGroupSpecial": "Special Cases",
+    "niit": "Net Investment Income Tax (+3.8%)",
     "taxRate": "Capital Gains Tax",
     "taxAllowance": "Tax-Free Allowance",
     "annualBonus": "Annual Bonus Deposit",
@@ -45,7 +53,9 @@
     "realValue": "Adjusted for inflation ({{inflation}}%), this is worth {{real}} in today's money.",
     "taxNote": "Taxes calculated year-by-year with a {{allowance}} annual tax-free allowance (unused portions do not carry forward).",
     "taxNoteGermany": "German Abgeltungssteuer (25% + 5.5% solidarity surcharge = 26.375%) applied year-by-year with a {{allowance}} annual tax-free allowance (unused portions do not carry forward).",
-    "taxNoteAustria": "Austrian KESt (25%) applied year-by-year with a {{allowance}} annual tax-free allowance (unused portions do not carry forward)."
+    "taxNoteAustria": "Austrian KESt (25%) applied year-by-year with a {{allowance}} annual tax-free allowance (unused portions do not carry forward).",
+    "taxNoteUS": "Taxes calculated at your federal marginal rate of {{federal}}% plus {{state}}% state tax. US interest income is taxed as ordinary income with no federal allowance.",
+    "waTooltip": "Washington has no state income tax on interest income, but levies a 7% capital gains tax on asset sales exceeding $250,000/year. This calculator models interest accumulation (ordinary income), so the WA state tax rate on interest is 0%."
   },
   "charts": {
     "bar": "Bar Chart",

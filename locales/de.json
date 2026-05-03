@@ -23,7 +23,15 @@
     "taxJurisdiction": "Steuerrecht",
     "taxJurisdictionGermany": "Deutschland",
     "taxJurisdictionAustria": "Österreich",
+    "taxJurisdictionUS": "Vereinigte Staaten",
     "taxJurisdictionCustom": "Benutzerdefiniert",
+    "federalRate": "Bundesmarginalsteuersatz",
+    "usState": "Bundesstaat",
+    "stateGroupNoTax": "Keine Staatseinkommensteuer",
+    "stateGroupFlat": "Flat-Tax-Bundesstaaten",
+    "stateGroupProgressive": "Progressive Steuer-Bundesstaaten",
+    "stateGroupSpecial": "Sonderfälle",
+    "niit": "Net Investment Income Tax (+3,8%)",
     "taxRate": "Kapitalertragssteuer",
     "taxAllowance": "Sparer-Pauschbetrag",
     "annualBonus": "Jährliche Bonus-Einzahlung",
@@ -45,7 +53,9 @@
     "realValue": "Inflationsbereinigt ({{inflation}}%) entspricht das einem heutigen Wert von {{real}}.",
     "taxNote": "Steuern werden jährlich berechnet mit einem jährlichen Sparer-Pauschbetrag von {{allowance}} (nicht genutzte Anteile verfallen).",
     "taxNoteGermany": "Deutsche Abgeltungssteuer (25% + 5,5% Solidaritätszuschlag = 26,375%) wird jährlich berechnet mit einem jährlichen Sparer-Pauschbetrag von {{allowance}} (nicht genutzte Anteile verfallen).",
-    "taxNoteAustria": "Österreichische KESt (25%) wird jährlich berechnet mit einem jährlichen Sparer-Pauschbetrag von {{allowance}} (nicht genutzte Anteile verfallen)."
+    "taxNoteAustria": "Österreichische KESt (25%) wird jährlich berechnet mit einem jährlichen Sparer-Pauschbetrag von {{allowance}} (nicht genutzte Anteile verfallen).",
+    "taxNoteUS": "Steuern werden mit deinem Bundesmarginalsteuersatz von {{federal}}% plus {{state}}% Staatssteuer berechnet. Zinserträge in den USA werden als normales Einkommen besteuert, ohne bundesstaatlichen Freibetrag.",
+    "waTooltip": "Washington hat keine Staatseinkommensteuer auf Zinserträge, erhebt aber eine 7%ige Kapitalertragssteuer auf Vermögensverkäufe über $250.000/Jahr. Dieser Rechner modelliert Zinsakkumulation (normales Einkommen), daher ist der WA-Staatssteuersatz auf Zinsen 0%."
   },
   "charts": {
     "bar": "Balkendiagramm",
