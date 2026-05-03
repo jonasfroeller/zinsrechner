@@ -764,35 +764,33 @@ export default function ZinsRechner() {
                   }}
                   className="h-[400px]"
                 >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={chartData.filter((item) => item.year > 0)}
-                      margin={{ top: 20, right: 10, left: 0, bottom: 30 }}
-                    >
-                      <XAxis
-                        dataKey="year"
-                        tickLine={false}
-                        axisLine={false}
-                        ticks={chartData
-                          .filter(
-                            (item) =>
-                              (item.year % getTickInterval(years) === 0 && item.year > 0) || item.year === years,
-                          )
-                          .map((item) => item.year)}
-                        height={30}
-                        dy={10}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => formatCompact(value, locale)}
-                        width={70}
-                      />
-                      <ChartTooltip content={CustomBarTooltip} />
-                      <Bar dataKey="contributionsDisplay" stackId="a" fill="var(--color-contributionsDisplay)" name={t("charts.legend.contributions")} />
-                      <Bar dataKey="netInterestDisplay" stackId="a" fill="var(--color-netInterestDisplay)" name={t("charts.legend.netInterest")} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <BarChart
+                    data={chartData.filter((item) => item.year > 0)}
+                    margin={{ top: 20, right: 10, left: 0, bottom: 30 }}
+                  >
+                    <XAxis
+                      dataKey="year"
+                      tickLine={false}
+                      axisLine={false}
+                      ticks={chartData
+                        .filter(
+                          (item) =>
+                            (item.year % getTickInterval(years) === 0 && item.year > 0) || item.year === years,
+                        )
+                        .map((item) => item.year)}
+                      height={30}
+                      dy={10}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => formatCompact(value, locale)}
+                      width={70}
+                    />
+                    <ChartTooltip content={CustomBarTooltip} />
+                    <Bar dataKey="contributionsDisplay" stackId="a" fill="var(--color-contributionsDisplay)" name={t("charts.legend.contributions")} />
+                    <Bar dataKey="netInterestDisplay" stackId="a" fill="var(--color-netInterestDisplay)" name={t("charts.legend.netInterest")} />
+                  </BarChart>
                 </ChartContainer>
               </TabsContent>
 
@@ -816,54 +814,52 @@ export default function ZinsRechner() {
                   }}
                   className="h-[400px]"
                 >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData} margin={{ top: 20, right: 10, left: 0, bottom: 30 }}>
-                      <XAxis
-                        dataKey="year"
-                        tickLine={false}
-                        axisLine={false}
-                        ticks={chartData
-                          .filter((item) => item.year % getTickInterval(years) === 0 || item.year === years)
-                          .map((item) => item.year)}
-                        height={30}
-                        dy={10}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => formatCompact(value, locale)}
-                        width={70}
-                      />
-                      <ChartTooltip content={CustomLineTooltip} />
+                  <LineChart data={chartData} margin={{ top: 20, right: 10, left: 0, bottom: 30 }}>
+                    <XAxis
+                      dataKey="year"
+                      tickLine={false}
+                      axisLine={false}
+                      ticks={chartData
+                        .filter((item) => item.year % getTickInterval(years) === 0 || item.year === years)
+                        .map((item) => item.year)}
+                      height={30}
+                      dy={10}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => formatCompact(value, locale)}
+                      width={70}
+                    />
+                    <ChartTooltip content={CustomLineTooltip} />
+                    <Line
+                      type="monotone"
+                      dataKey="totalAmount"
+                      stroke="var(--color-totalAmount)"
+                      strokeWidth={2}
+                      dot={false}
+                      name={t("charts.legend.totalCapital")}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="contributionsDisplay"
+                      stroke="var(--color-contributionsDisplay)"
+                      strokeWidth={2}
+                      dot={false}
+                      name={t("charts.legend.contributions")}
+                    />
+                    {inflationRate > 0 && (
                       <Line
                         type="monotone"
-                        dataKey="totalAmount"
-                        stroke="var(--color-totalAmount)"
+                        dataKey="realTotalAmount"
+                        stroke="var(--color-realTotalAmount)"
                         strokeWidth={2}
+                        strokeDasharray="5 5"
                         dot={false}
-                        name={t("charts.legend.totalCapital")}
+                        name={t("charts.legend.realTotalCapital")}
                       />
-                      <Line
-                        type="monotone"
-                        dataKey="contributionsDisplay"
-                        stroke="var(--color-contributionsDisplay)"
-                        strokeWidth={2}
-                        dot={false}
-                        name={t("charts.legend.contributions")}
-                      />
-                      {inflationRate > 0 && (
-                        <Line
-                          type="monotone"
-                          dataKey="realTotalAmount"
-                          stroke="var(--color-realTotalAmount)"
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
-                          dot={false}
-                          name={t("charts.legend.realTotalCapital")}
-                        />
-                      )}
-                    </LineChart>
-                  </ResponsiveContainer>
+                    )}
+                  </LineChart>
                 </ChartContainer>
               </TabsContent>
 
@@ -887,67 +883,65 @@ export default function ZinsRechner() {
                   }}
                   className="h-[400px]"
                 >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 20, right: 10, left: 0, bottom: 30 }}>
-                      <defs>
-                        <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(165, 60%, 40%)" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(165, 60%, 40%)" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="year"
-                        tickLine={false}
-                        axisLine={false}
-                        ticks={chartData
-                          .filter((item) => item.year % getTickInterval(years) === 0 || item.year === years)
-                          .map((item) => item.year)}
-                        height={30}
-                        dy={10}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => formatCompact(value, locale)}
-                        width={70}
-                      />
-                      <ChartTooltip content={CustomLineTooltip} />
-                      <Area
-                        type="monotone"
-                        dataKey="totalAmount"
-                        stroke="var(--color-totalAmount)"
-                        fill="url(#colorTotal)"
-                        strokeWidth={2}
-                        name={t("charts.legend.totalCapital")}
-                      />
+                  <AreaChart data={chartData} margin={{ top: 20, right: 10, left: 0, bottom: 30 }}>
+                    <defs>
+                      <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(165, 60%, 40%)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(165, 60%, 40%)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis
+                      dataKey="year"
+                      tickLine={false}
+                      axisLine={false}
+                      ticks={chartData
+                        .filter((item) => item.year % getTickInterval(years) === 0 || item.year === years)
+                        .map((item) => item.year)}
+                      height={30}
+                      dy={10}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => formatCompact(value, locale)}
+                      width={70}
+                    />
+                    <ChartTooltip content={CustomLineTooltip} />
+                    <Area
+                      type="monotone"
+                      dataKey="totalAmount"
+                      stroke="var(--color-totalAmount)"
+                      fill="url(#colorTotal)"
+                      strokeWidth={2}
+                      name={t("charts.legend.totalCapital")}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="contributionsDisplay"
+                      stroke="var(--color-contributionsDisplay)"
+                      strokeWidth={2}
+                      dot={false}
+                      name={t("charts.legend.contributions")}
+                    />
+                    {inflationRate > 0 && (
                       <Line
                         type="monotone"
-                        dataKey="contributionsDisplay"
-                        stroke="var(--color-contributionsDisplay)"
+                        dataKey="realTotalAmount"
+                        stroke="var(--color-realTotalAmount)"
                         strokeWidth={2}
+                        strokeDasharray="5 5"
                         dot={false}
-                        name={t("charts.legend.contributions")}
+                        name={t("charts.legend.realTotalCapital")}
                       />
-                      {inflationRate > 0 && (
-                        <Line
-                          type="monotone"
-                          dataKey="realTotalAmount"
-                          stroke="var(--color-realTotalAmount)"
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
-                          dot={false}
-                          name={t("charts.legend.realTotalCapital")}
-                        />
-                      )}
-                    </AreaChart>
-                  </ResponsiveContainer>
+                    )}
+                  </AreaChart>
                 </ChartContainer>
               </TabsContent>
 
               <TabsContent value="breakdown" className="w-full overflow-hidden">
                 <div className="h-[400px] flex items-center justify-center">
                   {donutData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={300}>
                       <PieChart>
                         <Pie
                           data={donutData}
