@@ -105,5 +105,9 @@
     "label": "Language",
     "en": "English",
     "de": "German"
+  },
+  "export": {
+    "json": "Download JSON",
+    "csv": "Download CSV"
   }
 }

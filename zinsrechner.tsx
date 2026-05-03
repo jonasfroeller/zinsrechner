@@ -27,9 +27,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Switch } from "@/components/ui/switch"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ChevronDown, ChevronUp, Info } from "lucide-react"
+import { ChevronDown, ChevronUp, Download, Info } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/context"
 import { useCalculator, YearlyData } from "@/hooks/use-calculator"
+import { Button } from "@/components/ui/button"
+import { downloadJSON, downloadCSV } from "@/lib/export"
 import { readUrlParam, readUrlStringParam, useUrlState } from "@/hooks/use-url-state"
 import { usStates, getStateByCode } from "@/lib/tax-data"
 import React, { ReactNode } from "react"
@@ -742,13 +744,51 @@ export default function ZinsRechner() {
                 ) : null}
               </div>
 
-              <TabsList className="mb-4 flex-wrap">
-                <TabsTrigger value="bar">{t("charts.bar")}</TabsTrigger>
-                <TabsTrigger value="line">{t("charts.line")}</TabsTrigger>
-                <TabsTrigger value="area">{t("charts.area")}</TabsTrigger>
-                <TabsTrigger value="breakdown">{t("charts.breakdown")}</TabsTrigger>
-                <TabsTrigger value="table">{t("charts.table")}</TabsTrigger>
-              </TabsList>
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <TabsList className="flex-wrap">
+                  <TabsTrigger value="bar">{t("charts.bar")}</TabsTrigger>
+                  <TabsTrigger value="line">{t("charts.line")}</TabsTrigger>
+                  <TabsTrigger value="area">{t("charts.area")}</TabsTrigger>
+                  <TabsTrigger value="breakdown">{t("charts.breakdown")}</TabsTrigger>
+                  <TabsTrigger value="table">{t("charts.table")}</TabsTrigger>
+                </TabsList>
+
+                {activeChart === "table" && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadJSON(rawData, "zinsrechner-data.json")}
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      {t("export.json")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        downloadCSV(
+                          rawData,
+                          locale,
+                          "zinsrechner-data.csv",
+                          [
+                            t("table.year"),
+                            t("table.yearlyContribution"),
+                            t("table.grossInterest"),
+                            t("table.tax"),
+                            t("table.netInterest"),
+                            t("table.total"),
+                            ...(inflationRate > 0 ? [t("table.realTotal")] : []),
+                          ]
+                        )
+                      }
+                    >
+                    <Download className="w-4 h-4 mr-1" />
+                      {t("export.csv")}
+                    </Button>
+                  </div>
+                )}
+              </div>
 
               <TabsContent value="bar" className="w-full overflow-hidden">
                 <ChartContainer
